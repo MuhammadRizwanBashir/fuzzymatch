@@ -1,0 +1,91 @@
+﻿@model FuzzyMatch.Models.VModel
+<h2>CSV Bulk Upload</h2>
+@{ using (Html.BeginForm("Index", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <input class="form-control" type="file" name="FileUpload1" />
+        <input class="form-control" type="file" name="FileUpload2" />
+        <input class="btn btn-primary" type="submit" name="Submit" id="Submit" value="Upload" />
+    }
+    <div class="row">
+
+        @if (Model.header1 != null && Model.header2 != null)
+        {
+            using (Html.BeginForm("JoinData", "Home", FormMethod.Post))
+            {
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Columns File 1</label>
+                        @Html.DropDownList("ddl1", new SelectList(Model.header1), new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4">
+                        <label>Select Join Type</label>
+                        <select class="form-control" name="ddljointype">
+                            <option value="Inner">Inner</option>
+                            <option value="Left">Left</option>
+                            <option value="Right">Right</option>
+                            <option value="Fuzzy">Fuzzy</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Columns File 2</label>
+                        @Html.DropDownList("ddl2", new SelectList(Model.header2), new { @class = "form-control" })
+                    </div>
+                    <div class="col-md-4">
+                        <input type="submit" class="btn btn-primary" name="Submit" id="Submit" value="Join" />
+                    </div>
+                </div>
+            }
+            <div class="col-md-6">
+                <h5>File 1</h5>
+                <table class="table-responsive table-bordered">
+                    <thead>
+                        <tr>
+                            @foreach (var item in Model.header1)
+                            {
+                                <td><b>@item</b></td>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.data1)
+                        {
+                            <tr>
+                                @foreach (var proper in item)
+                                {
+                                    <td>@proper</td>
+                                }
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h5>File 2</h5>
+                <table class="table-responsive table-bordered">
+                    <thead>
+                        <tr>
+                            @foreach (var item in Model.header2)
+                            {
+                                <td><b>@item</b></td>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.data2)
+                        {
+                            <tr>
+                                @foreach (var proper in item)
+                                {
+                                    <td>@proper</td>
+                                }
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </div>
+}
