@@ -180,18 +180,16 @@ namespace FuzzyMatch.Controllers
                         model.headerResult = headerFile2;
                         break;
                     case "Fuzzy":
-                        //do something else
                         //bool isEqual = "".FuzzyEquals("");
                         //double coefficient = input.FuzzyMatch(name);
                         index1 = headerFile1.FindIndex(s => s.Equals(ddl1));
                         index2 = headerFile2.FindIndex(s => s.Equals(ddl2));
-                        matchingUsers = (from d1 in dataFile1
-                                         join d2 in dataFile2 on d1.ElementAt(index1) equals d2.ElementAt(index2)
-                                         into gj
-                                         from mlist in gj.DefaultIfEmpty()
-                                         where d1.ElementAt(index1).FuzzyMatch(d1.ElementAt(index2))>0.3
-                                         select d1
-                                             ).ToList();
+                        matchingUsers = new List<string[]>();
+                        foreach (var item in dataFile1)
+                        {
+                            if (dataFile2.Where(w => w.ElementAt(index1).FuzzyMatch(item.ElementAt(index2)) > 0.3).Count()>0)
+                                matchingUsers.Add(item);
+                        }
                         model.dataResult = matchingUsers;
                         model.headerResult = headerFile1;
                         break;
