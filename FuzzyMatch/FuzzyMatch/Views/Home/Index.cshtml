@@ -86,6 +86,34 @@
                 </table>
             </div>
         }
+        @if (Model.headerResult != null)
+        {
+            <div class="col-md-6">
+                <h5>File 1</h5>
+                <table class="table-responsive table-bordered">
+                    <thead>
+                        <tr>
+                            @foreach (var item in Model.headerResult)
+                            {
+                                <td><b>@item</b></td>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.dataResult)
+                        {
+                            <tr>
+                                @foreach (var proper in item)
+                                {
+                                    <td>@proper</td>
+                                }
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        }
 
     </div>
 }

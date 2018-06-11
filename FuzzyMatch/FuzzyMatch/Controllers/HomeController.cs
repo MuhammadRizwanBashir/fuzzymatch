@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using DuoVia.FuzzyStrings;
 
 namespace FuzzyMatch.Controllers
 {
@@ -15,7 +16,18 @@ namespace FuzzyMatch.Controllers
         public ActionResult Index()
         {
             ViewBag.Title = "Home Page";
-
+            var aa = "Malik rizwan".FuzzyEquals("m.Rizwan");
+            var a= "Malik rizwan".FuzzyMatch("mr. Rizwan");
+            var a1 = "Malik rizwan".FuzzyMatch("mr. Rizwan");
+            var a2 = "Malik rizwan".FuzzyMatch("m Rizwan");
+            var a3 = "Malik rizwan".FuzzyMatch("Rizwan");
+            var a4 = "Malik rizwan".FuzzyMatch("Malik");
+            var a5 = "Malik rizwan".FuzzyMatch("rizwan");
+            var a6 = "Malik rizwan".FuzzyMatch("malik");
+            var a7 = "Malik rizwan".FuzzyMatch("Rizwan Malik");
+            var a8 = "Malik rizwan".FuzzyMatch("rizwan malik");
+            var a9 = "Malik rizwan".FuzzyMatch("MalikRizwan");
+            var a10 = "Malik rizwan".FuzzyMatch("Malik Rizwan");
             return View(new VModel());
         }
         [HttpPost]
@@ -86,7 +98,7 @@ namespace FuzzyMatch.Controllers
             string ddl1 = form["ddl1"];
             string ddl2 = form["ddl2"];
             string ddljointype = form["ddljointype"];
-
+            var model = new VModel();
             if (!string.IsNullOrEmpty(ddljointype) && !string.IsNullOrEmpty(ddl1) && !string.IsNullOrEmpty(ddl2))
             {
                 List<string> headerFile1 = new List<string>();
@@ -130,47 +142,67 @@ namespace FuzzyMatch.Controllers
                         dataFile2.RemoveAt(0);
                     }
                 }
+                
                 switch (ddljointype)
                 {
                     case "Inner":
                         var index1 = headerFile1.FindIndex(s => s.Equals(ddl1));
-                        var index2 = headerFile1.FindIndex(s => s.Equals(ddl2));
+                        var index2 = headerFile2.FindIndex(s => s.Equals(ddl2));
                         var matchingUsers = (from d1 in dataFile1
                                              join d2 in dataFile2 on d1.ElementAt(index1) equals d2.ElementAt(index2)
                                              select d1
                                              ).ToList();
+                        model.dataResult = matchingUsers;
+                        model.headerResult = headerFile1;
                         break;
                     case "Left":
                         index1 = headerFile1.FindIndex(s => s.Equals(ddl1));
-                        index2 = headerFile1.FindIndex(s => s.Equals(ddl2));
+                        index2 = headerFile2.FindIndex(s => s.Equals(ddl2));
+                        matchingUsers = (from d1 in dataFile1
+                                         join d2 in dataFile1 on d1.ElementAt(index1) equals d2.ElementAt(index2)
+                                         into gj
+                                         from mlist in gj.DefaultIfEmpty()
+                                         select d1
+                                             ).ToList();
+                        model.dataResult = matchingUsers;
+                        model.headerResult = headerFile1;
+                        break;
+                    case "Right":
+                        index1 = headerFile1.FindIndex(s => s.Equals(ddl1));
+                        index2 = headerFile2.FindIndex(s => s.Equals(ddl2));
                         matchingUsers = (from d2 in dataFile2
                                          join d1 in dataFile1 on d2.ElementAt(index2) equals d1.ElementAt(index1)
                                          into gj
                                          from mlist in gj.DefaultIfEmpty()
-                                         select mlist
+                                         select d2
                                              ).ToList();
+                        model.dataResult = matchingUsers;
+                        model.headerResult = headerFile2;
                         break;
-                    case "Right":
+                    case "Fuzzy":
+                        //do something else
+                        //bool isEqual = "".FuzzyEquals("");
+                        //double coefficient = input.FuzzyMatch(name);
                         index1 = headerFile1.FindIndex(s => s.Equals(ddl1));
-                        index2 = headerFile1.FindIndex(s => s.Equals(ddl2));
+                        index2 = headerFile2.FindIndex(s => s.Equals(ddl2));
                         matchingUsers = (from d1 in dataFile1
                                          join d2 in dataFile2 on d1.ElementAt(index1) equals d2.ElementAt(index2)
                                          into gj
                                          from mlist in gj.DefaultIfEmpty()
-                                         select mlist
+                                         where d1.ElementAt(index1).FuzzyMatch(d1.ElementAt(index2))>0.3
+                                         select d1
                                              ).ToList();
-                        
-                        break;
-                    case "Fuzzy":
-                        //do something else
+                        model.dataResult = matchingUsers;
+                        model.headerResult = headerFile1;
                         break;
                     default:
                         //do a different thing
                         break;
                 }
             }
-
-            return View(new VModel());
+            
+            
+            return View("Index", model);
         }
     }
 }
